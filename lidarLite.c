@@ -34,7 +34,7 @@ bool lidar_dbg = false;
 
 void lidar_delay(int ms)
 {
-	usleep(ms);
+	usleep(ms/1000);
 }
 // Initialize wiring I2C interface to LidarLite
 int lidar_init(bool dbg) 
@@ -44,7 +44,7 @@ int lidar_init(bool dbg)
 	fd = wiringPiI2CSetup(LIDAR_LITE_ADRS);
 	if (fd != -1) {
 		lidar_status(fd);  // Dummy request to wake up device
-		delay (100);
+		lidar_delay (100);
 	}
 	return(fd);
 }        
@@ -57,7 +57,7 @@ int lidar_read(int fd)
 	   // send "measure" command
 	   hiVal = wiringPiI2CWriteReg8(fd, LIDAR_MEASURE_REG, LIDAR_MEASURE_VAL);
 	   if (lidar_dbg) printf("write res=%d\n", hiVal);
-	   delay(20);
+	   //lidar_delay(20);
    
 	   // Read second byte and append with first 
 	   loVal = lidar_read_byteNZ(fd, LIDAR_DISTANCE_REG_LO) ;        
@@ -110,7 +110,7 @@ unsigned char  lidar_read_byte_raw(int fd, int reg, bool allowZero)
 {
 	int i;
 	unsigned char val;
-	delay(1);
+	lidar_delay(1);
 	while (true) 
 	{
 		val = wiringPiI2CReadReg8(fd, reg);
@@ -118,7 +118,7 @@ unsigned char  lidar_read_byte_raw(int fd, int reg, bool allowZero)
 		// Retry on error
 		if (val == LIDAR_ERROR_READ || (val==0 && !allowZero) ) 
 		{
-			delay (20) ;		// ms
+			lidar_delay (20) ;		// ms
 			// if (lidar_dbg) printf(".");
 			if (i++ > 50) {
 				// Timeout
